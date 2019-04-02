@@ -1,13 +1,14 @@
 FROM wordpress:5.0
 
-RUN mkdir -p /var/www/html/wp-content/languages \
-    && curl -o /var/www/html/wp-content/languages/pl.mo https://translate.wordpress.org/projects/wp/5.0.x/pl/default/export-translations/?format=mo
+VOLUME /var/www/html
 
-RUN apt-get update && apt-get install -y \
-    unzip \
-    && rm -rf /var/lib/apt/lists/*
+ENV WORDPRESS_VERSION 5.0.4
+ENV WORDPRESS_SHA1 74f499c2abf18625a8400a93c97c5d87d682e798
+ENV WORDPRESS_LANG pl_PL
 
-RUN mkdir -p /var/www/html/wp-content/plugins \
-    && curl -o /var/www/html/wp-content/plugins/woocommerce.zip https://downloads.wordpress.org/plugin/woocommerce.3.5.7.zip \
-    && unzip /var/www/html/wp-content/plugins/woocommerce.zip -d /var/www/html/wp-content/plugins \
-    && rm /var/www/html/wp-content/plugins/woocommerce.zip
+RUN set -ex; \
+	curl -o wordpress.tar.gz -fSL "https://pl.wordpress.org/wordpress-${WORDPRESS_VERSION}-${WORDPRESS_LANG}.tar.gz"; \
+	echo "$WORDPRESS_SHA1 *wordpress.tar.gz" | sha1sum -c -; \
+	tar -xzf wordpress.tar.gz -C /usr/src/; \
+	rm wordpress.tar.gz; \
+chown -R www-data:www-data /usr/src/wordpress
